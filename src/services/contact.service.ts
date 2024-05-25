@@ -32,7 +32,9 @@ export default class ContactService {
           const ifSeperateContact = await Contact.findAllByEmailOrPhoneNumber(email!, phoneNumber!);
           if (ifSeperateContact.length >= 2) {
             const linkedId = ifSeperateContact[0].dataValues.id;
-            const secondaryContactIds: number[] = [...new Set(ifSeperateContact.slice(1).map((contact: Contact) => [contact.id, contact.linkedId!]).flat(1))];
+            const secondaryContactIds: number[] = ifSeperateContact.slice(1)
+              .flatMap((contact: Contact) => [contact.id, contact.linkedId!])
+              .filter(id => id !== linkedId);
             await Contact.updateLinkedPrecedence(linkedId, secondaryContactIds);
           }
         }
@@ -55,7 +57,10 @@ export default class ContactService {
       } else {
         linkedContact = await Contact.findByPhoneNumber(phoneNumber!);
       }
-      const primaryContactId: number = linkedContact!.dataValues.linkedPrecedence === "primary" ? linkedContact!.dataValues.id : linkedContact!.dataValues.linkedId;
+      const primaryContactId: number =
+        (linkedContact!.dataValues.linkedPrecedence === "primary") ?
+          (linkedContact!.dataValues.id) :
+          (linkedContact!.dataValues.linkedId);
       const contacts = await Contact.findAll({
         where: {
           [Op.or]: [{ id: primaryContactId }, { linkedId: primaryContactId }]
@@ -63,9 +68,15 @@ export default class ContactService {
         order: [["createdAt", "ASC"]],
       });
 
-      const emails: string[] = [...new Set(contacts.filter((contact: Contact) => contact.email !== null).map((contact: Contact) => contact.email!))];
-      const phoneNumbers: string[] = [...new Set(contacts.filter((contact: Contact) => contact.phoneNumber).map((contact: Contact) => contact.phoneNumber!))];
-      const secondaryContactIds: number[] = contacts.filter((contact: Contact) => contact.linkedPrecedence === "secondary").map((contact: Contact) => contact.id);
+      const emails: string[] = [...new Set(contacts
+        .filter((contact: Contact) => contact.email !== null)
+        .map((contact: Contact) => contact.email!))];
+      const phoneNumbers: string[] = [...new Set(contacts
+        .filter((contact: Contact) => contact.phoneNumber)
+        .map((contact: Contact) => contact.phoneNumber!))];
+      const secondaryContactIds: number[] = contacts
+        .filter((contact: Contact) => contact.linkedPrecedence === "secondary")
+        .map((contact: Contact) => contact.id);
 
       const contact: IdentifyResponse = {
         primaryContactId,

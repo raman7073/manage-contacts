@@ -13,24 +13,34 @@ export class Contact extends Model implements IContact {
     public updatedAt!: Date;
     public deletedAt?: Date;
 
-    static async createContact(email?: string, phoneNumber?: string): Promise<Contact> {
+    static async createContact(
+        email?: string,
+        phoneNumber?: string
+    ): Promise<Contact> {
         return await Contact.create({ email, phoneNumber });
     }
-    static async findByEmail(email: string): Promise<Contact | null> {
+    static async findByEmail(
+        email: string
+    ): Promise<Contact | null> {
         return await Contact.findOne({
             where: {
                 email
             }
         });
     }
-    static async findByPhoneNumber(phoneNumber: string): Promise<Contact | null> {
+    static async findByPhoneNumber(
+        phoneNumber: string
+    ): Promise<Contact | null> {
         return await Contact.findOne({
             where: {
                 phoneNumber
             }
         });
     }
-    static async findByEmailOrPhoneNumber(email: string, phoneNumber: string): Promise<Contact | null> {
+    static async findByEmailOrPhoneNumber(
+        email: string,
+        phoneNumber: string
+    ): Promise<Contact | null> {
         return await Contact.findOne({
             where: {
                 [Op.or]: [
@@ -40,7 +50,10 @@ export class Contact extends Model implements IContact {
             }
         });
     }
-    static async findByEmailAndPhoneNumber(email: string | null, phoneNumber: string | null): Promise<Contact | null> {
+    static async findByEmailAndPhoneNumber(
+        email: string | null,
+        phoneNumber: string | null
+    ): Promise<Contact | null> {
         return await Contact.findOne({
             where: {
                 email,
@@ -48,7 +61,9 @@ export class Contact extends Model implements IContact {
             }
         });
     }
-    static async findByEmailAndPhoneNull(email: string): Promise<Contact | null> {
+    static async findByEmailAndPhoneNull(
+        email: string
+    ): Promise<Contact | null> {
         return await Contact.findOne({
             where: {
                 email,
@@ -56,7 +71,9 @@ export class Contact extends Model implements IContact {
             }
         });
     }
-    static async findByPhoneAndEmailNull(phoneNumber: string): Promise<Contact | null> {
+    static async findByPhoneAndEmailNull(
+        phoneNumber: string
+    ): Promise<Contact | null> {
         return await Contact.findOne({
             where: {
                 phoneNumber,
@@ -64,7 +81,10 @@ export class Contact extends Model implements IContact {
             }
         });
     }
-    static async findAllByEmailOrPhoneNumber(email?: string, phoneNumber?: string): Promise<Contact[]> {
+    static async findAllByEmailOrPhoneNumber(
+        email?: string,
+        phoneNumber?: string
+    ): Promise<Contact[]> {
         return await Contact.findAll({
             where: {
                 [Op.or]: [
@@ -75,7 +95,10 @@ export class Contact extends Model implements IContact {
             order: [["createdAt", "ASC"]],
         });
     }
-    static async updateLinkedPrecedence(linkedId: number, secondaryContactIds: number[]): Promise<[affected: number]> {
+    static async updateLinkedPrecedence(
+        linkedId: number,
+        secondaryContactIds: number[]
+    ): Promise<[affected: number]> {
         const res = await Contact.update({ linkedId }, {
             where: {
                 id: {

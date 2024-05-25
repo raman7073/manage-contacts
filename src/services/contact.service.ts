@@ -32,7 +32,7 @@ export default class ContactService {
           const ifSeperateContact = await Contact.findAllByEmailOrPhoneNumber(email!, phoneNumber!);
           if (ifSeperateContact.length >= 2) {
             const linkedId = ifSeperateContact[0].dataValues.id;
-            const secondaryContactIds = ifSeperateContact.slice(1).map((contact: Contact) => contact.id);
+            const secondaryContactIds: number[] = [...new Set(ifSeperateContact.slice(1).map((contact: Contact) => [contact.id, contact.linkedId!]).flat(1))];
             await Contact.updateLinkedPrecedence(linkedId, secondaryContactIds);
           }
         }

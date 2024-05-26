@@ -27,15 +27,25 @@ export default class ContactService {
             Contact.findByPhoneNumber(phoneNumber!)
           ]);
           if (!ifEmailExists || !ifPhoneNumberExists) {
-            await Contact.createContact(email, phoneNumber);
+            const resc = await Contact.createContact(email, phoneNumber);
           }
           const ifSeperateContact = await Contact.findAllByEmailOrPhoneNumber(email!, phoneNumber!);
           if (ifSeperateContact.length >= 2) {
-            const linkedId = ifSeperateContact[0].dataValues.id;
+            let linkedId: number;
+            for (let i = 1; i < ifSeperateContact.length; i++) {
+              if (ifSeperateContact[i].dataValues.linkedPrecedence === "primary") {
+                linkedId = ifSeperateContact[i].dataValues.id;
+                break;
+              }
+              if (ifSeperateContact[i].dataValues.linkedId !== null) {
+                linkedId = ifSeperateContact[i].dataValues.linkedId;
+                break;
+              }
+            }
             const secondaryContactIds: number[] = ifSeperateContact.slice(1)
               .flatMap((contact: Contact) => [contact.id, contact.linkedId!])
               .filter(id => id !== linkedId);
-            await Contact.updateLinkedPrecedence(linkedId, secondaryContactIds);
+            const res = await Contact.updateLinkedPrecedence(linkedId!, secondaryContactIds);
           }
         }
       }
